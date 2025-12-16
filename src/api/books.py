@@ -1,12 +1,12 @@
 from urllib.request import Request
 
-from fastapi import APIRouter, UploadFile, HTTPException, middleware
+from fastapi import APIRouter, UploadFile, HTTPException, middleware, FastAPI
 import asyncio
 
 from sqlalchemy import select
 from starlette.responses import StreamingResponse
 
-from src.api.dependencies import SessionDep, PaginationDep
+from src.api.dependencies import SessionDep, PaginationDep, PoliyaDep
 from src.database import engine, Base
 from src.models.books import BooksModel
 from src.schemas.books import BookAddSchema, BookSchema
@@ -19,17 +19,19 @@ async def async_task(): #функция для выполнения на фон�
     print("Книга получена")
 
 
-@router.post("/create_database",tags=["Книги📚"])
-async def setup_database():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-        await conn.run_sync(Base.metadata.create_all)
-    return {"ok": True }
+
+
+# @router.post("/create_database",tags=["Книги📚"])
+# async def setup_database():
+#     async with engine.begin() as conn:
+#         await conn.run_sync(Base.metadata.drop_all)
+#         await conn.run_sync(Base.metadata.create_all)
+#     return {"ok": True }
 
 
 
 @router.post("/books",tags=["Книги📚"])
-async def add_book(data: BookAddSchema, session: SessionDep):
+async def add_book(data: PoliyaDep,  session: SessionDep):
     new_book = BooksModel(
         title=data.title,
         author=data.author
