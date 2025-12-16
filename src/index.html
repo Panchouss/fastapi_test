@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список Книг</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .book-list { list-style-type: none; padding: 0; }
+        .book-item { background-color: #f4f4f4; margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .book-title { font-weight: bold; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Список Книг</h1>
+    <p id="loading-status">Загрузка данных...</p>
+    <ul class="book-list" id="books-container">
+        <!-- Книги будут добавлены сюда с помощью JavaScript -->
+    </ul>
+
+    <script>
+        // URL вашего бэкенда
+        const API_URL = 'http://localhost:8000/books/all';
+        const container = document.getElementById('books-container');
+        const statusElement = document.getElementById('loading-status');
+
+        async function fetchBooks() {
+            try {
+                // Используем Fetch API для запроса данных
+                const response = await fetch(API_URL);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const books = await response.json(); // Преобразование ответа в JSON
+
+                statusElement.textContent = `Найдено книг: ${books.length}`;
+
+                // Отображение книг
+                books.forEach(book => {
+                    const li = document.createElement('li');
+                    li.classList.add('book-item');
+                    li.innerHTML = `
+                        <div class="book-title">${book.title}</div>
+                        <div>Автор: ${book.author}</div>
+                    `;
+                    container.appendChild(li);
+                });
+
+            } catch (error) {
+                console.error('Ошибка при получении данных:', error);
+                statusElement.classList.add('error');
+                statusElement.textContent = 'Ошибка загрузки данных. Убедитесь, что сервер запущен и настроены CORS.'; // Обработка ошибок, включая CORS
+            }
+        }
+
+        // Запуск функции при загрузке страницы
+        fetchBooks();
+    </script>
+</body>
+</html>
